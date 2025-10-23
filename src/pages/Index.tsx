@@ -402,24 +402,31 @@ const Index = () => {
           <p className="text-lg md:text-xl text-muted-foreground mb-4 font-poppins">
             Learn Pushdown Automata through interactive animations!
           </p>
-          <div className="space-y-3 mt-6">
+          <div className="space-y-4 mt-6">
             <div className="inline-block bg-primary/10 px-6 py-2 rounded-full border border-primary/30 animate-fade-in" style={{animationDelay: '0.2s'}}>
               <p className="font-poppins text-base md:text-lg font-semibold text-primary">
                 TEAM C • CSE-D SECTION
               </p>
             </div>
-            <div className="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-4 text-xs md:text-sm font-poppins animate-fade-in flex-wrap" style={{animationDelay: '0.4s'}}>
-              <div className="bg-secondary/10 px-4 py-2 rounded-lg border border-secondary/30 hover:scale-105 transition-transform">
-                <span className="font-semibold text-secondary">Shaik Haider</span>
-                <span className="text-muted-foreground ml-2">(24765A0524)</span>
+            
+            <div className="animate-fade-in" style={{animationDelay: '0.3s'}}>
+              <p className="font-poppins text-lg md:text-xl font-bold text-foreground mb-3 tracking-wide">
+                PRESENTED BY
+              </p>
+            </div>
+            
+            <div className="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-4 text-sm md:text-base font-poppins animate-fade-in flex-wrap" style={{animationDelay: '0.4s'}}>
+              <div className="bg-secondary/10 px-5 py-3 rounded-lg border-2 border-secondary/40 hover:scale-105 transition-transform shadow-lg">
+                <span className="font-bold text-lg text-secondary">Shaik Haider</span>
+                <span className="text-muted-foreground ml-2 font-semibold">(24765A0524)</span>
               </div>
-              <div className="bg-accent/10 px-4 py-2 rounded-lg border border-accent/30 hover:scale-105 transition-transform">
-                <span className="font-semibold text-accent">M. V. Karthik</span>
-                <span className="text-muted-foreground ml-2">(23761A05N5)</span>
+              <div className="bg-accent/10 px-5 py-3 rounded-lg border-2 border-accent/40 hover:scale-105 transition-transform shadow-lg">
+                <span className="font-bold text-lg text-accent">Mutakaratapu Venkata Karthik</span>
+                <span className="text-muted-foreground ml-2 font-semibold">(23761A05N5)</span>
               </div>
-              <div className="bg-primary/10 px-4 py-2 rounded-lg border border-primary/30 hover:scale-105 transition-transform">
-                <span className="font-semibold text-primary">Y. Revathi Kumar</span>
-                <span className="text-muted-foreground ml-2">(23761A05Q2)</span>
+              <div className="bg-primary/10 px-5 py-3 rounded-lg border-2 border-primary/40 hover:scale-105 transition-transform shadow-lg">
+                <span className="font-bold text-lg text-primary">Yella Revathi Kumar</span>
+                <span className="text-muted-foreground ml-2 font-semibold">(23761A05Q2)</span>
               </div>
             </div>
           </div>
