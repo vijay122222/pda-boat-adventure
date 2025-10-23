@@ -293,6 +293,11 @@ const Index = () => {
         setTotalAccepted(prev => prev + 1);
         setShowConfetti(true);
         
+        // Ensure boat reaches the island
+        setTimeout(() => {
+          setBoatPosition(100);
+        }, 300);
+        
         if (prediction === 'accept') {
           setCorrectPredictions(prev => prev + 1);
           setCurrentStreak(prev => prev + 1);
@@ -587,6 +592,7 @@ const Index = () => {
                 position={boatPosition}
                 sinking={sinking}
                 sailing={isRunning}
+                reachedDestination={finalResult === 'accept' && isComplete && boatPosition >= 100}
               />
             </div>
 
