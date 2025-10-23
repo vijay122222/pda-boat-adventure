@@ -12,6 +12,7 @@ import StackVisual from '@/components/game/StackVisual';
 import BoatVisual from '@/components/game/BoatVisual';
 import ConfettiEffect from '@/components/game/ConfettiEffect';
 import QuizModal from '@/components/game/QuizModal';
+import PushPopDecisionModal from '@/components/game/PushPopDecisionModal';
 import Scoreboard from '@/components/game/Scoreboard';
 import { PDA_TEMPLATES } from '@/types/pda';
 import type { MicroStep, StackSymbol, PDAState } from '@/types/pda';
@@ -46,6 +47,13 @@ const Index = () => {
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizData, setQuizData] = useState<Quiz | null>(null);
   const [askedQuestions, setAskedQuestions] = useState<Set<string>>(new Set());
+  
+  // Push/Pop Decision state
+  const [showDecisionModal, setShowDecisionModal] = useState(false);
+  const [waitingForDecision, setWaitingForDecision] = useState(false);
+  const [wrongDecision, setWrongDecision] = useState<{ decision: 'push' | 'pop'; reason: string } | undefined>(undefined);
+  const [expectedOperation, setExpectedOperation] = useState<'push' | 'pop' | 'none'>('none');
+  const [operationExplanation, setOperationExplanation] = useState('');
   
   // Scoreboard
   const [totalPlayed, setTotalPlayed] = useState(0);
@@ -250,8 +258,41 @@ const Index = () => {
     toast.success('Simulation started!');
   };
 
-  // Next step
-  const handleNextStep = () => {
+  // Determine expected operation for current step
+  const determineExpectedOperation = (step: MicroStep): 'push' | 'pop' | 'none' => {
+    if (step.operation.includes('Push')) return 'push';
+    if (step.operation.includes('Pop')) return 'pop';
+    return 'none';
+  };
+
+  // Handle push/pop decision
+  const handlePushPopDecision = (decision: 'push' | 'pop') => {
+    const step = steps[currentStep];
+    const expected = expectedOperation;
+    
+    if (decision !== expected && expected !== 'none') {
+      // Wrong decision
+      const wrongReason = decision === 'push' 
+        ? `Wrong! For symbol '${step.symbol}', you should POP from the stack because ${operationExplanation}. The PDA rule requires removing elements, not adding them in this case.`
+        : `Wrong! For symbol '${step.symbol}', you should PUSH to the stack because ${operationExplanation}. The PDA rule requires adding elements to track the pattern.`;
+      
+      setWrongDecision({ decision, reason: wrongReason });
+      toast.error('Incorrect operation! Read the explanation.');
+      return;
+    }
+    
+    // Correct decision - proceed
+    setShowDecisionModal(false);
+    setWaitingForDecision(false);
+    setWrongDecision(undefined);
+    toast.success(`✅ Correct! Performing ${decision.toUpperCase()} operation.`);
+    
+    // Execute the step
+    executeCurrentStep();
+  };
+
+  // Execute the current step (after decision)
+  const executeCurrentStep = () => {
     if (currentStep >= steps.length) return;
 
     const step = steps[currentStep];
@@ -269,12 +310,12 @@ const Index = () => {
     setCurrentState(step.state);
     setBoatPosition(Math.min(((currentStep + 1) / steps.length) * 100, 100));
     
-    // Trigger quizzes more frequently - every 2-3 steps, with progressive difficulty
+    // Trigger quizzes less frequently since we have push/pop decisions
     const shouldTriggerQuiz = (
       currentStep > 0 && 
-      (currentStep % 2 === 0 || currentStep % 3 === 0) && 
+      currentStep % 4 === 0 && 
       !showQuiz &&
-      Math.random() > 0.3 // 70% chance to show quiz
+      Math.random() > 0.5
     );
     
     if (shouldTriggerQuiz) {
@@ -325,6 +366,29 @@ const Index = () => {
     setCurrentStep(prev => prev + 1);
   };
 
+  // Next step - now asks for push/pop decision first
+  const handleNextStep = () => {
+    if (currentStep >= steps.length) return;
+    if (waitingForDecision) return;
+
+    const step = steps[currentStep];
+    
+    // Check if this step requires a decision (not final step and has operation)
+    const requiresDecision = step.symbol !== '' && (step.operation.includes('Push') || step.operation.includes('Pop'));
+    
+    if (requiresDecision && !step.error) {
+      // Ask for decision
+      const expected = determineExpectedOperation(step);
+      setExpectedOperation(expected);
+      setOperationExplanation(step.explanation);
+      setWaitingForDecision(true);
+      setShowDecisionModal(true);
+    } else {
+      // No decision needed (final step or error step)
+      executeCurrentStep();
+    }
+  };
+
   // Run to end
   const handleRunToEnd = async () => {
     for (let i = currentStep; i < steps.length; i++) {
@@ -346,7 +410,10 @@ const Index = () => {
     setSinking(false);
     setShowConfetti(false);
     setPrediction(null);
-    setAskedQuestions(new Set()); // Clear asked questions on reset
+    setAskedQuestions(new Set());
+    setShowDecisionModal(false);
+    setWaitingForDecision(false);
+    setWrongDecision(undefined);
     toast.info('Game reset - Ready for new challenge! 🎮');
   };
 
@@ -418,7 +485,7 @@ const Index = () => {
                 <span className="text-muted-foreground ml-2">(23761A05N5)</span>
               </div>
               <div className="bg-primary/10 px-4 py-2 rounded-lg border border-primary/30 hover:scale-105 transition-transform">
-                <span className="font-semibold text-primary">Y. Revathi Kumar</span>
+                <span className="font-semibold text-primary">Yalla Revanth Kumar</span>
                 <span className="text-muted-foreground ml-2">(23761A05Q2)</span>
               </div>
             </div>
@@ -646,6 +713,16 @@ const Index = () => {
           onSkip={() => setShowQuiz(false)}
         />
       )}
+
+      <PushPopDecisionModal
+        open={showDecisionModal}
+        symbol={currentStep < steps.length ? steps[currentStep].symbol : ''}
+        currentStack={stack}
+        onDecision={handlePushPopDecision}
+        expectedOperation={expectedOperation}
+        explanation={operationExplanation}
+        wrongAttempt={wrongDecision}
+      />
     </div>
   );
 };
