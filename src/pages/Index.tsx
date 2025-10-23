@@ -15,6 +15,8 @@ import QuizModal from '@/components/game/QuizModal';
 import Scoreboard from '@/components/game/Scoreboard';
 import { PDA_TEMPLATES } from '@/types/pda';
 import type { MicroStep, StackSymbol, PDAState } from '@/types/pda';
+import { getProgressiveQuiz } from '@/types/quizzes';
+import type { Quiz } from '@/types/quizzes';
 
 const Index = () => {
   // Game state
@@ -42,11 +44,8 @@ const Index = () => {
   
   // Quiz state
   const [showQuiz, setShowQuiz] = useState(false);
-  const [quizData, setQuizData] = useState<{
-    question: string;
-    options: string[];
-    correctAnswer: number;
-  } | null>(null);
+  const [quizData, setQuizData] = useState<Quiz | null>(null);
+  const [askedQuestions, setAskedQuestions] = useState<Set<string>>(new Set());
   
   // Scoreboard
   const [totalPlayed, setTotalPlayed] = useState(0);
@@ -270,8 +269,15 @@ const Index = () => {
     setCurrentState(step.state);
     setBoatPosition(Math.min(((currentStep + 1) / steps.length) * 100, 100));
     
-    // Check for quiz trigger (every 3 steps)
-    if (currentStep > 0 && currentStep % 3 === 0 && !showQuiz) {
+    // Trigger quizzes more frequently - every 2-3 steps, with progressive difficulty
+    const shouldTriggerQuiz = (
+      currentStep > 0 && 
+      (currentStep % 2 === 0 || currentStep % 3 === 0) && 
+      !showQuiz &&
+      Math.random() > 0.3 // 70% chance to show quiz
+    );
+    
+    if (shouldTriggerQuiz) {
       triggerQuiz();
     }
     
@@ -335,39 +341,47 @@ const Index = () => {
     setSinking(false);
     setShowConfetti(false);
     setPrediction(null);
-    toast.info('Game reset');
+    setAskedQuestions(new Set()); // Clear asked questions on reset
+    toast.info('Game reset - Ready for new challenge! 🎮');
   };
 
-  // Quiz system
+  // Enhanced Quiz system with progressive difficulty
   const triggerQuiz = () => {
-    const quizzes = [
-      {
-        question: 'What happens if the stack is empty and we try to pop?',
-        options: ['Push a new symbol', 'Reject immediately', 'Continue normally', 'Accept the input'],
-        correctAnswer: 1
-      },
-      {
-        question: 'What is the acceptance condition for most PDAs?',
-        options: ['Stack is full', 'Stack is empty at the end', 'Input is consumed', 'State is q1'],
-        correctAnswer: 1
-      },
-      {
-        question: 'In batch mode, what does "run length" mean?',
-        options: ['Total input length', 'Consecutive identical symbols', 'Stack height', 'Number of states'],
-        correctAnswer: 1
-      }
-    ];
+    // Get quiz based on current progress and template
+    const quiz = getProgressiveQuiz(selectedTemplate, currentStep, steps.length);
     
-    const quiz = quizzes[Math.floor(Math.random() * quizzes.length)];
-    setQuizData(quiz);
-    setShowQuiz(true);
+    // Avoid repeating same question in same session
+    if (askedQuestions.has(quiz.question)) {
+      // Try one more time to get a different question
+      const newQuiz = getProgressiveQuiz(selectedTemplate, currentStep, steps.length);
+      if (!askedQuestions.has(newQuiz.question)) {
+        setQuizData(newQuiz);
+        setAskedQuestions(prev => new Set([...prev, newQuiz.question]));
+        setShowQuiz(true);
+      }
+    } else {
+      setQuizData(quiz);
+      setAskedQuestions(prev => new Set([...prev, quiz.question]));
+      setShowQuiz(true);
+    }
   };
 
   const handleQuizAnswer = (correct: boolean) => {
     if (correct) {
-      toast.success('Correct answer! 🎓');
+      const messages = [
+        '🎓 Brilliant! You really understand PDAs!',
+        '🌟 Perfect! Keep up the great learning!',
+        '🔥 Awesome! You\'re mastering this!',
+        '💯 Excellent! Your PDA knowledge is growing!'
+      ];
+      toast.success(messages[Math.floor(Math.random() * messages.length)]);
+      
+      // Small bonus for correct answers
+      if (quizData?.difficulty === 'hard' || quizData?.difficulty === 'tricky') {
+        toast.success('🏆 Bonus for hard question!');
+      }
     } else {
-      toast.error('Incorrect. Review the steps!');
+      toast.error('Not quite right. But now you learned something new! 📚');
     }
     setShowQuiz(false);
   };
@@ -597,6 +611,8 @@ const Index = () => {
           question={quizData.question}
           options={quizData.options}
           correctAnswer={quizData.correctAnswer}
+          difficulty={quizData.difficulty}
+          explanation={quizData.explanation}
           onAnswer={handleQuizAnswer}
           onSkip={() => setShowQuiz(false)}
         />
