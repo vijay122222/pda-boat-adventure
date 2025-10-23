@@ -269,15 +269,12 @@ const Index = () => {
     setCurrentState(step.state);
     setBoatPosition(Math.min(((currentStep + 1) / steps.length) * 100, 100));
     
-    // Trigger 3-4 puzzles per game - calculate trigger points
-    const totalSteps = steps.length;
-    const puzzleInterval = Math.floor(totalSteps / 4); // Divide game into 4 parts
+    // Trigger quizzes more frequently - every 2-3 steps, with progressive difficulty
     const shouldTriggerQuiz = (
       currentStep > 0 && 
-      puzzleInterval > 0 &&
-      (currentStep % puzzleInterval === 0 || currentStep === Math.floor(totalSteps / 2)) &&
+      (currentStep % 2 === 0 || currentStep % 3 === 0) && 
       !showQuiz &&
-      askedQuestions.size < 4 // Max 4 puzzles per game
+      Math.random() > 0.3 // 70% chance to show quiz
     );
     
     if (shouldTriggerQuiz) {
@@ -396,30 +393,38 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-8">
-      {/* Header */}
-      <div className="text-center space-y-2 mb-6">
-        <h1 className="text-4xl md:text-5xl font-bold text-primary">
-          🚢 PDA Story Boat — Realtime Mode
-        </h1>
-        <p className="text-xl text-muted-foreground">
-          Learn Pushdown Automata through interactive animations!
-        </p>
-        
-        {/* Team Info */}
-        <div className="mt-4 pt-4 border-t border-border">
-          <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-            Presented By
+      {/* Team Header */}
+      <header className="mb-8 text-center animate-fade-in">
+        <div className="max-w-5xl mx-auto bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-2xl p-6 shadow-xl">
+          <h1 className="font-playfair text-3xl md:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent mb-4 animate-scale-in">
+            🚢 PDA Story Boat — Realtime Mode
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground mb-4 font-poppins">
+            Learn Pushdown Automata through interactive animations!
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-2 text-sm">
-            <span className="font-bold text-foreground">Shaik Haider (24765A0524)</span>
-            <span className="text-muted-foreground">•</span>
-            <span className="font-bold text-foreground">Mutakaratapu Venkata Karthik (23761A05N5)</span>
-            <span className="text-muted-foreground">•</span>
-            <span className="font-bold text-foreground">Yalla Revanth Kumar (23761A05Q2)</span>
+          <div className="space-y-3 mt-6">
+            <div className="inline-block bg-primary/10 px-6 py-2 rounded-full border border-primary/30 animate-fade-in" style={{animationDelay: '0.2s'}}>
+              <p className="font-poppins text-base md:text-lg font-semibold text-primary">
+                TEAM C • CSE-D SECTION
+              </p>
+            </div>
+            <div className="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-4 text-xs md:text-sm font-poppins animate-fade-in flex-wrap" style={{animationDelay: '0.4s'}}>
+              <div className="bg-secondary/10 px-4 py-2 rounded-lg border border-secondary/30 hover:scale-105 transition-transform">
+                <span className="font-semibold text-secondary">Shaik Haider</span>
+                <span className="text-muted-foreground ml-2">(24765A0524)</span>
+              </div>
+              <div className="bg-accent/10 px-4 py-2 rounded-lg border border-accent/30 hover:scale-105 transition-transform">
+                <span className="font-semibold text-accent">M. V. Karthik</span>
+                <span className="text-muted-foreground ml-2">(23761A05N5)</span>
+              </div>
+              <div className="bg-primary/10 px-4 py-2 rounded-lg border border-primary/30 hover:scale-105 transition-transform">
+                <span className="font-semibold text-primary">Y. Revathi Kumar</span>
+                <span className="text-muted-foreground ml-2">(23761A05Q2)</span>
+              </div>
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">TEAM C • CSE-D SECTION</p>
         </div>
-      </div>
+      </header>
 
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Main Game Area */}
