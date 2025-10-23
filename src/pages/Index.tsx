@@ -387,18 +387,41 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl md:text-5xl font-bold text-primary">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 p-4 md:p-8">
+      {/* Team Header */}
+      <header className="mb-8 text-center animate-fade-in">
+        <div className="max-w-5xl mx-auto bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-2xl p-6 shadow-xl">
+          <h1 className="font-playfair text-3xl md:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent mb-4 animate-scale-in">
             🚢 PDA Story Boat — Realtime Mode
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-lg md:text-xl text-muted-foreground mb-4 font-poppins">
             Learn Pushdown Automata through interactive animations!
           </p>
+          <div className="space-y-3 mt-6">
+            <div className="inline-block bg-primary/10 px-6 py-2 rounded-full border border-primary/30 animate-fade-in" style={{animationDelay: '0.2s'}}>
+              <p className="font-poppins text-base md:text-lg font-semibold text-primary">
+                TEAM C • CSE-D SECTION
+              </p>
+            </div>
+            <div className="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-4 text-xs md:text-sm font-poppins animate-fade-in flex-wrap" style={{animationDelay: '0.4s'}}>
+              <div className="bg-secondary/10 px-4 py-2 rounded-lg border border-secondary/30 hover:scale-105 transition-transform">
+                <span className="font-semibold text-secondary">Shaik Haider</span>
+                <span className="text-muted-foreground ml-2">(24765A0524)</span>
+              </div>
+              <div className="bg-accent/10 px-4 py-2 rounded-lg border border-accent/30 hover:scale-105 transition-transform">
+                <span className="font-semibold text-accent">M. V. Karthik</span>
+                <span className="text-muted-foreground ml-2">(23761A05N5)</span>
+              </div>
+              <div className="bg-primary/10 px-4 py-2 rounded-lg border border-primary/30 hover:scale-105 transition-transform">
+                <span className="font-semibold text-primary">Y. Revathi Kumar</span>
+                <span className="text-muted-foreground ml-2">(23761A05Q2)</span>
+              </div>
+            </div>
+          </div>
         </div>
+      </header>
 
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Main Game Area */}
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Left: Controls */}
